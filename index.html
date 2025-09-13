@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quiz do Trânsito para Crianças</title>
+  <style>
+    body {
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      background-color: #f0f9ff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-size: 30px;
+    }
+
+    .quiz-container {
+      background-color: white;
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      animation: fadeIn 1s ease;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      color: blue;
+      font-size: 35px;
+    }
+
+    .btn-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    button {
+      padding: 12px;
+      font-size: 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+    }
+
+    .answer-btn {
+      background-color: #e0f7fa;
+    }
+
+    .answer-btn.correct {
+      background-color: #c8e6c9;
+      animation: pulse 0.5s;
+    }
+
+    .answer-btn.wrong {
+      background-color: #ffcdd2;
+      animation: shake 0.4s;
+    }
+
+    .next-btn {
+      margin-top: 20px;
+      background-color: #4caf50;
+      color: white;
+      display: none;
+    }
+
+    .score {
+      font-size: 18px;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+
+    .progress {
+      height: 10px;
+      background: #ddd;
+      border-radius: 5px;
+      overflow: hidden;
+      margin-top: 20px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: #4caf50;
+      transition: width 0.5s;
+    }
+
+    /* Caixa de feedback */
+    .feedback {
+      margin-top: 15px;
+      font-size: 30px;
+      font-weight: bold;
+      display: none;
+      animation: bounceIn 0.6s;
+    }
+    .feedback.correct {
+      color: #2e7d32;
+    }
+    .feedback.wrong {
+      color: #c62828;
+    }
+
+    /* Animações */
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(-20px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    @keyframes bounceIn {
+      0% { transform: scale(0.5); opacity: 0; }
+      60% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="quiz-container">
+    <h1>🚦👮 QUIZ DO TRÂNSITO 🚗🚓</h1>
+    <div id="question-container">
+      <p id="question"></p>
+      <div id="answers" class="btn-grid"></div>
+    </div>
+    <div class="progress">
+      <div id="progress-bar" class="progress-bar"></div>
+    </div>
+    <p id="feedback" class="feedback"></p>
+    <button id="next-btn" class="next-btn">Próxima</button>
+    <p id="score" class="score"></p>
+  </div>
+
+  <!-- Sons -->
+  <audio id="sound-correct" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg" preload="auto"></audio>
+  <audio id="sound-wrong" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg" preload="auto"></audio>
+
+  <script>
+    const questions = [
+      {
+        question: "O que significa o sinal vermelho no semáforo?",
+        answers: [
+          { text: "Pode passar correndo", correct: false },
+          { text: "Parar e esperar", correct: true },
+          { text: "Acelerar", correct: false }
+        ]
+      },
+      {
+        question: "Onde o pedestre deve atravessar a rua?",
+        answers: [
+          { text: "No meio da rua", correct: false },
+          { text: "Na faixa de pedestres", correct: true },
+          { text: "Atrás dos carros", correct: false }
+        ]
+      },
+      {
+        question: "O que significa o sinal amarelo do semáforo?",
+        answers: [
+          { text: "Atenção, o sinal vai fechar", correct: true },
+          { text: "Pode acelerar para passar", correct: false },
+          { text: "É igual ao verde", correct: false }
+        ]
+      },
+      {
+        question: "Qual cor do semáforo indica que pode seguir?",
+        answers: [
+          { text: "Amarelo", correct: false },
+          { text: "Verde", correct: true },
+          { text: "Vermelho", correct: false }
+        ]
+      },
+      {
+        question: "O que devemos fazer ao ver uma placa de 'Pare'?",
+        answers: [
+          { text: "Diminuir e seguir", correct: false },
+          { text: "Ignorar", correct: false },
+          { text: "Parar completamente", correct: true }
+        ]
+      },
+      {
+        question: "Qual o comportamento correto ao ver o sinal verde para pedestres?",
+        answers: [
+          { text: "Atravessar correndo sem olhar", correct: false },
+          { text: "Esperar o sinal fechar novamente", correct: false },
+          { text: "Atravessar com atenção pela faixa", correct: true }
+        ]
+      },
+      {
+        question: "O que devemos usar dentro do carro para ficar seguros?",
+        answers: [
+          { text: "Aparelhos eletrônicos sem supervisão", correct: false },
+          { text: "Cinto de segurança", correct: true },
+          { text: "Ficar em pé no banco traseiro", correct: false }
+        ]
+      }
+
+    ];
+
+    const questionEl = document.getElementById('question');
+    const answersEl = document.getElementById('answers');
+    const nextBtn = document.getElementById('next-btn');
+    const scoreEl = document.getElementById('score');
+    const progressBar = document.getElementById('progress-bar');
+    const feedbackEl = document.getElementById('feedback');
+
+    const soundCorrect = document.getElementById('sound-correct');
+    const soundWrong = document.getElementById('sound-wrong');
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    const mensagensCorretas = ["Muito bem! 🎉", "Acertou! 🚀", "Show de bola! 😎", "Boa! 👏"];
+    const mensagensErradas = ["Ops, quase... 🤔", "Não foi dessa vez 😅", "Continue tentando 💪", "Errado, mas você consegue! ⭐"];
+
+    function startQuiz() {
+      currentQuestionIndex = 0;
+      score = 0;
+      scoreEl.textContent = '';
+      feedbackEl.style.display = "none";
+      nextBtn.textContent = 'Próxima';
+      loadQuestion();
+    }
+
+    function loadQuestion() {
+      resetState();
+      const currentQuestion = questions[currentQuestionIndex];
+      questionEl.textContent = currentQuestion.question;
+
+      currentQuestion.answers.forEach(answer => {
+        const btn = document.createElement('button');
+        btn.textContent = answer.text;
+        btn.classList.add('answer-btn');
+        if (answer.correct) {
+          btn.dataset.correct = answer.correct;
+        }
+        btn.addEventListener('click', selectAnswer);
+        answersEl.appendChild(btn);
+      });
+
+      updateProgress();
+    }
+
+    function resetState() {
+      nextBtn.style.display = 'none';
+      feedbackEl.style.display = 'none';
+      while (answersEl.firstChild) {
+        answersEl.removeChild(answersEl.firstChild);
+      }
+    }
+
+    function selectAnswer(e) {
+      const selectedBtn = e.target;
+      const isCorrect = selectedBtn.dataset.correct === "true";
+
+      if (isCorrect) {
+        selectedBtn.classList.add('correct');
+        score++;
+        showFeedback(true);
+        soundCorrect.play();
+      } else {
+        selectedBtn.classList.add('wrong');
+        showFeedback(false);
+        soundWrong.play();
+      }
+
+      Array.from(answersEl.children).forEach(btn => {
+        btn.disabled = true;
+        if (btn.dataset.correct === "true") {
+          btn.classList.add('correct');
+        }
+      });
+
+      nextBtn.style.display = 'inline-block';
+    }
+
+    function showFeedback(isCorrect) {
+      feedbackEl.style.display = "block";
+      feedbackEl.textContent = isCorrect 
+        ? mensagensCorretas[Math.floor(Math.random() * mensagensCorretas.length)] 
+        : mensagensErradas[Math.floor(Math.random() * mensagensErradas.length)];
+      feedbackEl.className = `feedback ${isCorrect ? 'correct' : 'wrong'}`;
+    }
+
+    function updateProgress() {
+      const progress = ((currentQuestionIndex) / questions.length) * 100;
+      progressBar.style.width = progress + "%";
+    }
+
+    nextBtn.addEventListener('click', () => {
+      currentQuestionIndex++;
+      if (currentQuestionIndex < questions.length) {
+        loadQuestion();
+      } else {
+        showScore();
+      }
+    });
+
+    function showScore() {
+      resetState();
+      questionEl.textContent = 'Quiz finalizado!';
+
+      let medal = "🥉";
+      if (score === questions.length) medal = "🏅";
+      else if (score >= questions.length * 0.7) medal = "🥈";
+
+      scoreEl.textContent = `Você acertou ${score} de ${questions.length} perguntas. ${medal}`;
+      progressBar.style.width = "100%";
+
+      nextBtn.textContent = 'Jogar novamente';
+      nextBtn.style.display = 'inline-block';
+      nextBtn.onclick = startQuiz;
+    }
+
+    startQuiz();
+  </script>
+</body>
+</html>
