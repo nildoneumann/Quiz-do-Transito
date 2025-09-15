@@ -3,7 +3,7 @@
   "short_name": "QuizTrânsito",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#f0f9ff",
+  "background_color": "#00ced1",
   "theme_color": "#4caf50",
   "icons": [
     {
@@ -18,3 +18,4 @@
     }
   ]
 }
+
